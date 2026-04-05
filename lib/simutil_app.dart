@@ -243,6 +243,7 @@ class _SimutilAppState extends State<SimutilApp> {
 
   String _buildIdleStatusMessageForAndroidDevices() {
     final parts = <String>[
+      'Screen Mirror: s',
       'Logcat: l',
       'ADB Tools: n',
       'Refresh: r',
@@ -295,6 +296,7 @@ class _SimutilAppState extends State<SimutilApp> {
         _showAdbTools();
         return true;
       case LogicalKey.keyS:
+        _onDeviceScrcpyRequested(_currentSelectedDevice);
         return true;
       case LogicalKey.keyQ:
         exit(0);
@@ -487,6 +489,38 @@ class _SimutilAppState extends State<SimutilApp> {
       device: device,
       adbPath: _di.adbService.adbPath,
     );
+  }
+
+  Future<void> _onDeviceScrcpyRequested(Device? device) async {
+    if (device == null || device.os != DeviceOs.android) return;
+
+    final plugin = _di.scrcpyPlugin;
+    final available = await plugin.isAvailable();
+
+    if (!available) {
+      setState(
+        () => _statusMessage =
+            'scrcpy not found. Please install scrcpy first (see install.sh).',
+      );
+      return;
+    }
+
+    setState(() => _statusMessage = 'Launching scrcpy for ${device.name}…');
+    try {
+      // Start scrcpy detached — it opens its own GUI window and runs
+      // independently of simutil. We intentionally discard the process
+      // reference because scrcpy manages its own lifecycle.
+      await Process.start(
+        plugin.command,
+        plugin.buildArgs(device),
+        mode: ProcessStartMode.detached,
+      );
+      setState(() => _statusMessage = 'scrcpy launched for ${device.name}');
+    } catch (e) {
+      setState(
+        () => _statusMessage = 'Failed to launch scrcpy for ${device.name}: $e',
+      );
+    }
   }
 
   @override

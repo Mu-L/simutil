@@ -1,3 +1,4 @@
+import 'package:simutil/plugins/scrcpy/scrcpy_plugin.dart';
 import 'package:simutil/services/android_device_service.dart';
 import 'package:simutil/services/command_exec.dart';
 import 'package:simutil/services/ios_device_service.dart';
@@ -20,6 +21,7 @@ class ServiceLocator {
   );
   late final IOSDeviceService simctlService = IOSDeviceService(commandExec);
   late final SettingsService settingsService = SettingsService();
+  final ScrcpyPlugin scrcpyPlugin = const ScrcpyPlugin();
 
   Future<void> init() async => isolateRunner.init();
 

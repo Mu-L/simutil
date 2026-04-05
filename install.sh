@@ -203,6 +203,61 @@ configure_path() {
   fi
 }
 
+# ─── Install scrcpy ─────────────────────────────────────────────────────────────
+
+install_scrcpy() {
+  local os="$1"
+
+  if command -v scrcpy >/dev/null 2>&1; then
+    success "scrcpy is already installed ($(scrcpy --version 2>/dev/null | head -1))"
+    return
+  fi
+
+  info "scrcpy not found — installing scrcpy..."
+
+  case "$os" in
+    macos)
+      if command -v brew >/dev/null 2>&1; then
+        brew install scrcpy
+        success "scrcpy installed via Homebrew"
+      else
+        warn "Homebrew not found. Install scrcpy manually:"
+        echo ""
+        echo -e "  ${CYAN}brew install scrcpy${RESET}"
+        echo -e "  or visit: ${CYAN}https://github.com/Genymobile/scrcpy#macos${RESET}"
+        echo ""
+      fi
+      ;;
+    linux)
+      if command -v snap >/dev/null 2>&1; then
+        info "Installing scrcpy via snap (sudo required)..."
+        sudo snap install scrcpy
+        success "scrcpy installed via snap"
+      elif command -v apt-get >/dev/null 2>&1; then
+        info "Installing scrcpy via apt (sudo required)..."
+        sudo apt-get install -y scrcpy
+        success "scrcpy installed via apt"
+      else
+        warn "Could not install scrcpy automatically. Install it manually:"
+        echo ""
+        echo -e "  ${CYAN}sudo apt install scrcpy${RESET}  (Debian/Ubuntu)"
+        echo -e "  ${CYAN}snap install scrcpy${RESET}       (snap)"
+        echo -e "  or visit: ${CYAN}https://github.com/Genymobile/scrcpy#linux${RESET}"
+        echo ""
+      fi
+      ;;
+    windows)
+      warn "Automatic scrcpy installation is not supported on Windows."
+      echo ""
+      echo -e "  Install scrcpy manually using one of:"
+      echo -e "  ${CYAN}choco install scrcpy${RESET}   (Chocolatey)"
+      echo -e "  ${CYAN}scoop install scrcpy${RESET}   (Scoop)"
+      echo -e "  or download from: ${CYAN}https://github.com/Genymobile/scrcpy/releases${RESET}"
+      echo ""
+      ;;
+  esac
+}
+
 main() {
   local os arch version
 
@@ -210,6 +265,7 @@ main() {
   arch="$(detect_arch)"
   version="$(resolve_version "${1:-latest}")"
 
+  install_scrcpy "$os"
   install "$os" "$arch" "$version"
   configure_path "$os"
 
