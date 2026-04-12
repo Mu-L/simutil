@@ -34,6 +34,7 @@ class _QrConnectDialogState extends State<QrConnectDialog> {
   Timer? _spinnerTimer;
   int _spinnerIndex = 0;
   bool _isScanning = false;
+  String? _codeError;
 
   static const _spinnerFrames = ['-', r'\', '|', '/'];
 
@@ -94,6 +95,7 @@ class _QrConnectDialogState extends State<QrConnectDialog> {
         setState(() {
           _phase = _services.isNotEmpty ? _Phase.discovered : _Phase.scanning;
           _codeController.clear();
+          _codeError = null;
         });
         return true;
       }
@@ -131,6 +133,7 @@ class _QrConnectDialogState extends State<QrConnectDialog> {
         setState(() {
           _phase = _Phase.enterCode;
           _codeController.clear();
+          _codeError = null;
         });
         return true;
       }
@@ -140,7 +143,10 @@ class _QrConnectDialogState extends State<QrConnectDialog> {
   }
 
   void _trySubmit(String code) {
-    if (code.length != 6) return;
+    if (code.length != 6) {
+      setState(() => _codeError = 'Pairing code must be exactly 6 digits.');
+      return;
+    }
     final service = _services[_selectedIndex];
     component.onSubmit(
       WirelessPairingInput(host: service.address, pairingCode: code),
@@ -282,6 +288,8 @@ class _QrConnectDialogState extends State<QrConnectDialog> {
           ],
         ),
         Divider(),
+        if (_codeError != null)
+          Text(' $_codeError', style: st.errorStyle),
         Text(' Submit: <enter> | Back: <esc>', style: st.dimmed),
       ],
     );

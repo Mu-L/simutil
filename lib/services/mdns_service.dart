@@ -19,7 +19,7 @@ class MdnsDiscoveredPairingService {
 
 class MdnsService {
   static const _pairingServiceType = '_adb-tls-pairing._tcp.local';
-  static const _scanTimeout = Duration(seconds: 5);
+  static const _scanTimeout = Duration(seconds: 4);
 
   /// Discovers Android devices currently in wireless debugging pairing mode.
   ///
