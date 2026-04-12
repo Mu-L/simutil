@@ -2,6 +2,7 @@ import 'package:simutil/services/android_device_service.dart';
 import 'package:simutil/services/command_exec.dart';
 import 'package:simutil/services/ios_device_service.dart';
 import 'package:simutil/services/isolate_runner.dart';
+import 'package:simutil/services/mdns_service.dart';
 import 'package:simutil/services/settings_service.dart';
 
 class ServiceLocator {
@@ -20,6 +21,7 @@ class ServiceLocator {
   );
   late final IOSDeviceService simctlService = IOSDeviceService(commandExec);
   late final SettingsService settingsService = SettingsService();
+  late final MdnsService mdnsService = MdnsService();
 
   Future<void> init() async => isolateRunner.init();
 

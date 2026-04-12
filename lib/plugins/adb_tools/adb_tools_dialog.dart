@@ -16,7 +16,7 @@ enum AdbToolOption {
   ),
   connectViaQr(
     label: 'Connect via QR Code',
-    description: 'Scan QR code for wireless debugging (Android 11+)',
+    description: 'Auto-discover pairing device via mDNS (Android 11+)',
   );
 
   const AdbToolOption({required this.label, required this.description});

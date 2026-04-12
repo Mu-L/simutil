@@ -392,7 +392,45 @@ class _SimutilAppState extends State<SimutilApp> {
   }
 
   Future<void> _handleQrConnect() async {
-    await showQrConnectDialog(context);
+    final input = await showQrConnectDialog(
+      context: context,
+      mdnsService: _di.mdnsService,
+    );
+
+    if (input == null) return;
+
+    setState(() => _statusMessage = 'Pairing with ${input.host}…');
+
+    final result = await _di.adbService.pairDevice(
+      input.host,
+      input.pairingCode,
+    );
+
+    if (result.success) {
+      await showSuccessDialog(
+        context: context,
+        title: 'Paired Successfully',
+        message: '${result.message}\n\nYou can now connect to the device.',
+      );
+
+      final connectHost = await showInputDialog(
+        context: context,
+        title: 'Connect to Device',
+        label: 'Enter device IP:Port for connection',
+        hint: 'Usually same IP with port 5555',
+      );
+
+      if (connectHost != null && connectHost.isNotEmpty) {
+        await _handleAdbConnectDirect(connectHost);
+      }
+    } else {
+      await showErrorDialog(
+        context,
+        title: 'Pairing Failed',
+        message: result.message,
+      );
+      setState(() => _statusMessage = 'Pairing failed');
+    }
   }
 
   Future<void> _handleAdbConnectDirect(String host) async {
