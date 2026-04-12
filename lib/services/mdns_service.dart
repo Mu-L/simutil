@@ -23,7 +23,7 @@ class MdnsService {
 
   /// Discovers Android devices currently in wireless debugging pairing mode.
   ///
-  /// Returns within [_scanTimeout] even if no services are found.
+  /// Returns within 4 seconds even if no services are found.
   Future<List<MdnsDiscoveredPairingService>> discoverPairingServices() {
     return _doDiscover().timeout(_scanTimeout, onTimeout: () => []);
   }

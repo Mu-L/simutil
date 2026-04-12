@@ -73,7 +73,11 @@ class _QrConnectDialogState extends State<QrConnectDialog> {
       final discovered = await component.mdnsService.discoverPairingServices();
       setState(() {
         _isScanning = false;
-        _services = discovered;
+        // Don't update the discovered list while the user is entering a pairing
+        // code — keep the current selection stable.
+        if (_phase != _Phase.enterCode) {
+          _services = discovered;
+        }
         if (_services.isNotEmpty && _phase == _Phase.scanning) {
           _phase = _Phase.discovered;
           _selectedIndex = 0;
@@ -117,6 +121,7 @@ class _QrConnectDialogState extends State<QrConnectDialog> {
     }
 
     if (_phase == _Phase.discovered) {
+      if (_services.isEmpty) return false;
       if (event.logicalKey == LogicalKey.arrowUp) {
         setState(() {
           _selectedIndex = (_selectedIndex - 1).clamp(0, _services.length - 1);
@@ -147,6 +152,7 @@ class _QrConnectDialogState extends State<QrConnectDialog> {
       setState(() => _codeError = 'Pairing code must be exactly 6 digits.');
       return;
     }
+    if (_selectedIndex >= _services.length) return;
     final service = _services[_selectedIndex];
     component.onSubmit(
       WirelessPairingInput(host: service.address, pairingCode: code),
